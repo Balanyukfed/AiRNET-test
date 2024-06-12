@@ -3,6 +3,7 @@ import Modal from "react-modal";
 
 const Calendar: React.FC = () => {
   const [selectedDay, setSelectedDay] = useState<null | number>(null);
+  const [tasks, setTasks] = useState<{ [key: string]: string[] }>({});
 
   const handleDayClick = (day: number) => {
     setSelectedDay(day);
@@ -10,6 +11,13 @@ const Calendar: React.FC = () => {
 
   const closeModal = () => {
     setSelectedDay(null);
+  };
+
+  const addTask = (task: string) => {
+    if (selectedDay !== null) {
+      const dayTasks = tasks[selectedDay] || [];
+      setTasks({ ...tasks, [String(selectedDay)]: [...dayTasks, task] });
+    }
   };
 
   return (
@@ -21,6 +29,20 @@ const Calendar: React.FC = () => {
       ))}
       <Modal isOpen={selectedDay !== null} onRequestClose={closeModal}>
         <h2>Список задач на {selectedDay} день</h2>
+        <input
+          type="text"
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              addTask(e.currentTarget.value);
+              e.currentTarget.value = "";
+            }
+          }}
+        />
+        <ul>
+            {selectedDay !== null && tasks[selectedDay]?.map((task, index) => (
+                <li key={index}>{task}</li>
+            ))}
+        </ul>
         <button onClick={closeModal}>Close</button>
       </Modal>
     </div>
