@@ -2,12 +2,7 @@ import React, { useEffect, useState } from "react";
 import Modal from "react-modal";
 import { loadTasks, saveTasks } from "../utils/storage";
 import { isHoliday } from "../utils/holidays";
-import {
-  format,
-  getDaysInMonth,
-  startOfMonth,
-  getDay,
-} from "date-fns";
+import { format, getDaysInMonth, startOfMonth, getDay } from "date-fns";
 
 Modal.setAppElement("#root");
 
@@ -32,7 +27,6 @@ const Calendar: React.FC = () => {
   const fetchHolidays = async (year: number, month: number) => {
     const holidayDays = [];
     for (let i = 1; i <= getDaysInMonth(new Date(year, month)); i++) {
-      // const date = `202406${i < 10 ? "0" + i : i}`;
       const date = format(new Date(year, month, i), "yyyyMMdd");
       if (await isHoliday(date)) {
         holidayDays.push(i);
@@ -123,42 +117,61 @@ const Calendar: React.FC = () => {
         className="modal"
         overlayClassName="modal-overlay"
       >
-        <div >
+        <div>
           <h2 className="modal__title">Список задач на {selectedDay} день</h2>
-          <input
-            type="text"
-            className="modal__input"
-            onKeyDown={(e) => {
-              if (e.key === "Enter") {
-                addTask(e.currentTarget.value);
-                e.currentTarget.value = "";
-              }
-            }}
-          />
+          <div className="modal__input-container">
+            <input
+              type="text"
+              className="modal__input"
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  addTask(e.currentTarget.value);
+                  e.currentTarget.value = "";
+                }
+              }}
+            />
+            <button
+              className="modal__add-btn"
+              onClick={() => {
+                const input = document.querySelector(
+                  ".modal__input"
+                ) as HTMLInputElement;
+                if (input) {
+                  addTask(input.value);
+                  input.value = "";
+                }
+              }}
+            >
+              Добавить
+            </button>
+          </div>
           <ul className="modal__tasks">
             {selectedDay !== null &&
               tasks[selectedDay]?.map((task, index) => (
                 <li
                   key={index}
                   className="modal__task"
-                                  >
-                  <span className="modal__task-text" style={{
+                  style={{
                     textDecoration: task.completed ? "line-through" : "none",
-                  }}>{task.text}</span>
-                  <button
-                    onClick={() => toggleTaskCompleted(selectedDay, index)}
-                    className={`modal__task-btn ${
-                      task.completed ? "modal__task-btn--completed" : ""
-                    }`}
-                  >
-                    {task.completed ? "Отменить" : "Выполнено"}
-                  </button>
-                  <button
-                    onClick={() => removeTask(selectedDay, index)}
-                    className="modal__task-btn modal__task-btn--delete"
-                  >
-                    Удалить
-                  </button>
+                  }}
+                >
+                  <span className="modal__task-text">{task.text}</span>
+                  <div className="modal__task-bnts">
+                    <button
+                      onClick={() => toggleTaskCompleted(selectedDay, index)}
+                      className={`modal__task-btn ${
+                        task.completed ? "modal__task-btn--completed" : ""
+                      }`}
+                    >
+                      {task.completed ? "Отменить" : "Выполнено"}
+                    </button>
+                    <button
+                      onClick={() => removeTask(selectedDay, index)}
+                      className="modal__task-btn modal__task-btn--delete"
+                    >
+                      Удалить
+                    </button>
+                  </div>
                 </li>
               ))}
           </ul>

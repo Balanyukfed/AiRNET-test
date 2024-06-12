@@ -9,17 +9,17 @@ body {
     align-items: start;
     max-height: 100vh;
     padding: 40px;
-  }
-  
-  /* Контейнер для календаря и модального окна */
-  .app-container {
+}
+
+/* Контейнер для календаря и модального окна */
+.app-container {
     display: flex;
     width: 100%;
     height: 100vh;
-  }
-  
-  /* Стили для календаря */
-  .calendar {
+}
+
+/* Стили для календаря */
+.calendar {
     flex: 1;
     padding: 20px;
     background-color: white;
@@ -27,20 +27,20 @@ body {
     border-radius: 8px;
     height: 100%;
     box-sizing: border-box;
-  }
-  
-  .calendar__grid {
+}
+
+.calendar__grid {
     display: flex;
     flex-direction: column;
     gap: 10px;
-  }
-  
-  .calendar__week {
+}
+
+.calendar__week {
     display: flex;
     gap: 10px;
-  }
-  
-  .calendar__day {
+}
+
+.calendar__day {
     padding: 10px;
     background-color: white;
     border: 1px solid #ccc;
@@ -48,15 +48,15 @@ body {
     transition: background-color 0.3s;
     flex: 1;
     text-align: center;
-  }
-  
-  .calendar__day--holiday {
+}
+
+.calendar__day--holiday {
     background-color: green;
     color: white;
-  }
-  
-  /* Стили для модального окна */
-  .modal-overlay {
+}
+
+/* Стили для модального окна */
+.modal-overlay {
     display: flex;
     justify-content: center;
     align-items: center;
@@ -66,9 +66,9 @@ body {
     right: 0;
     bottom: 0;
     background-color: rgba(0, 0, 0, 0.5);
-  }
-  
-  .modal {
+}
+
+.modal {
     flex: 1;
     padding: 20px;
     background-color: white;
@@ -80,54 +80,86 @@ body {
     height: auto;
     box-sizing: border-box;
     overflow-y: auto;
-  }
-  
-  .modal__title {
+}
+
+.modal__title {
     margin-top: 0;
-  }
-  
-  .modal__input {
+}
+
+.modal__input {
     width: 100%;
     padding: 10px;
-    margin-bottom: 10px;
     border: 1px solid #ccc;
     border-radius: 4px;
     box-sizing: border-box;
-  }
-  
-  .modal__tasks {
-    list-style: none;
-    padding: 0;
-  }
-  
-  .modal__task {
+}
+
+.modal__input-container {
     display: flex;
-    align-items: center;
-    margin-bottom: 10px;
-  }
-  
-  .modal__task-text {
+    height: 40px;
+    gap: 20px;
+}
+
+.modal__add-btn {
+    display: block;
+    margin: 0;
+    padding: 10px 20px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    line-height: 100%;
+}
+
+.modal__tasks {
+    list-style: circle;
+    padding: 0;
+    margin-top: 40px;
+}
+
+.modal__task {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 10px;
+    margin-bottom: 40px;
+    background:#eeeeee;
+    padding: 10px;
+    border-radius: 6px;
+}
+
+.modal__task-text {
     flex-grow: 1;
-  }
-  
-  .modal__task-btn {
+    display: block;
+    width: 100%;
+    word-break: break-all;
+}
+
+.modal__task-bnts {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+}
+
+.modal__task-btn {
     margin-left: 10px;
     border: none;
     background: none;
     cursor: pointer;
     font-size: 16px;
     color: green;
-  }
-  
-  .modal__task-btn--completed {
+}
+
+.modal__task-btn--completed {
     color: black;
-  }
-  
-  .modal__task-btn--delete {
-    color:  red;
-  }
-  
-  .modal__close-btn {
+}
+
+.modal__task-btn--delete {
+    color: red;
+}
+
+.modal__close-btn {
     display: block;
     margin: 20px auto 0;
     padding: 10px 20px;
@@ -136,5 +168,10 @@ body {
     border: none;
     border-radius: 4px;
     cursor: pointer;
-  }
-  
+}
+
+@media (max-width: 768px) {
+    .modal {
+        max-width: 100%;
+    }
+}
