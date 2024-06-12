@@ -2,26 +2,38 @@ import React, { useEffect, useState } from "react";
 import Modal from "react-modal";
 import { loadTasks, saveTasks } from "../utils/storage";
 import { isHoliday } from "../utils/holidays";
+import {
+  format,
+  getDaysInMonth,
+  startOfMonth,
+  getDay,
+} from "date-fns";
 
 Modal.setAppElement("#root");
 
 const Calendar: React.FC = () => {
   const [selectedDay, setSelectedDay] = useState<null | number>(null);
-  // const [tasks, setTasks] = useState<{ [key: string]: string[] }>({});
   const [tasks, setTasks] = useState<{
     [key: string]: { text: string; completed: boolean }[];
   }>({});
   const [holidays, setHolidays] = useState<number[]>([]);
+  const [daysInMonth, setDaysInMonth] = useState<number[]>([]);
 
   useEffect(() => {
+    const year = 2024;
+    const month = 5;
+    const days = getDaysInMonth(new Date(year, month));
+    const daysArray = Array.from({ length: days }, (_, i) => i + 1);
+    setDaysInMonth(daysArray);
     setTasks(loadTasks());
-    fetchHolidays();
+    fetchHolidays(year, month);
   }, []);
 
-  const fetchHolidays = async () => {
+  const fetchHolidays = async (year: number, month: number) => {
     const holidayDays = [];
-    for (let i = 1; i <= 30; i++) {
-      const date = `202406${i < 10 ? "0" + i : i}`;
+    for (let i = 1; i <= getDaysInMonth(new Date(year, month)); i++) {
+      // const date = `202406${i < 10 ? "0" + i : i}`;
+      const date = format(new Date(year, month, i), "yyyyMMdd");
       if (await isHoliday(date)) {
         holidayDays.push(i);
       }
@@ -65,43 +77,95 @@ const Calendar: React.FC = () => {
     saveTasks(newTasks);
   };
 
+  const renderWeek = (startDay: number, firstDayOfWeek: number) => {
+    const days = [];
+    let dayOffset = startDay - firstDayOfMonth;
+
+    for (let i = 0; i < 7; i++) {
+      const day = dayOffset + i;
+      if (day >= 1 && day <= daysInMonth.length) {
+        days.push(
+          <button
+            key={day}
+            onClick={() => handleDayClick(day)}
+            className={`calendar__day ${
+              holidays.includes(day) ? "calendar__day--holiday" : ""
+            }`}
+          >
+            {day}
+          </button>
+        );
+      } else {
+        days.push(
+          <div key={i} className="calendar__day calendar__day--empty" />
+        );
+      }
+    }
+    return (
+      <div className="calendar__week" key={startDay}>
+        {days}
+      </div>
+    );
+  };
+
+  const weeks = [];
+  const firstDayOfMonth = (getDay(startOfMonth(new Date(2024, 5))) + 6) % 7;
+  for (let i = 1; i <= daysInMonth.length; i += 7) {
+    weeks.push(renderWeek(i, firstDayOfMonth));
+  }
+
   return (
     <div className="calendar">
-      {Array.from({ length: 30 }, (_, i) => (
-        <button
-          key={i}
-          onClick={() => handleDayClick(i + 1)}
-          style={{
-            backgroundColor: holidays.includes(i + 1) ? "green" : "white",
-          }}
-        >
-          {i + 1}
-        </button>
-      ))}
-      <Modal isOpen={selectedDay !== null} onRequestClose={closeModal}>
-        <h2>Список задач на {selectedDay} день</h2>
-        <input
-          type="text"
-          onKeyDown={(e) => {
-            if (e.key === "Enter") {
-              addTask(e.currentTarget.value);
-              e.currentTarget.value = "";
-            }
-          }}
-        />
-        <ul>
-          {selectedDay !== null &&
-            tasks[selectedDay]?.map((task, index) => (
-              <li key={index} style={{textDecoration: task.completed ? "line-through" : "none"}}>
-                {task.text}
-              <button onClick={() => toggleTaskCompleted(selectedDay, index)}>
-                {task.completed ? "Отменить" : "Выполнено"}
-              </button>
-              <button onClick={() => removeTask(selectedDay, index)}>Удалить</button>
-              </li>
-            ))}
-        </ul>
-        <button onClick={closeModal}>Close</button>
+      <div className="calendar__grid">{weeks}</div>
+      <Modal
+        isOpen={selectedDay !== null}
+        onRequestClose={closeModal}
+        className="modal"
+        overlayClassName="modal-overlay"
+      >
+        <div >
+          <h2 className="modal__title">Список задач на {selectedDay} день</h2>
+          <input
+            type="text"
+            className="modal__input"
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                addTask(e.currentTarget.value);
+                e.currentTarget.value = "";
+              }
+            }}
+          />
+          <ul className="modal__tasks">
+            {selectedDay !== null &&
+              tasks[selectedDay]?.map((task, index) => (
+                <li
+                  key={index}
+                  className="modal__task"
+                                  >
+                  <span className="modal__task-text" style={{
+                    textDecoration: task.completed ? "line-through" : "none",
+                  }}>{task.text}</span>
+                  <button
+                    onClick={() => toggleTaskCompleted(selectedDay, index)}
+                    className={`modal__task-btn ${
+                      task.completed ? "modal__task-btn--completed" : ""
+                    }`}
+                  >
+                    {task.completed ? "Отменить" : "Выполнено"}
+                  </button>
+                  <button
+                    onClick={() => removeTask(selectedDay, index)}
+                    className="modal__task-btn modal__task-btn--delete"
+                  >
+                    Удалить
+                  </button>
+                </li>
+              ))}
+          </ul>
+          <button onClick={closeModal} className="modal__close-btn">
+            Закрыть окно
+          </button>
+        </div>
       </Modal>
     </div>
   );
