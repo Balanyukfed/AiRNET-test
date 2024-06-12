@@ -1,9 +1,14 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Modal from "react-modal";
+import {loadTasks, saveTasks} from "../utils/storage";
 
 const Calendar: React.FC = () => {
   const [selectedDay, setSelectedDay] = useState<null | number>(null);
   const [tasks, setTasks] = useState<{ [key: string]: string[] }>({});
+
+  useEffect(() => {
+    setTasks(loadTasks());
+  }, []);
 
   const handleDayClick = (day: number) => {
     setSelectedDay(day);
@@ -16,7 +21,9 @@ const Calendar: React.FC = () => {
   const addTask = (task: string) => {
     if (selectedDay !== null) {
       const dayTasks = tasks[selectedDay] || [];
-      setTasks({ ...tasks, [String(selectedDay)]: [...dayTasks, task] });
+      const newTasks = { ...tasks, [String(selectedDay)]: [...dayTasks, task] };
+      setTasks(newTasks);
+      saveTasks(newTasks);
     }
   };
 
