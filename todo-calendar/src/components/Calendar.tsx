@@ -1,14 +1,28 @@
 import React, { useEffect, useState } from "react";
 import Modal from "react-modal";
-import {loadTasks, saveTasks} from "../utils/storage";
+import { loadTasks, saveTasks } from "../utils/storage";
+import { isHoliday } from "../utils/holidays";
 
 const Calendar: React.FC = () => {
   const [selectedDay, setSelectedDay] = useState<null | number>(null);
   const [tasks, setTasks] = useState<{ [key: string]: string[] }>({});
+  const [holidays, setHolidays] = useState<number[]>([]);
 
   useEffect(() => {
     setTasks(loadTasks());
+    fetchHolidays();
   }, []);
+
+  const fetchHolidays = async () => {
+    const holidayDays = [];
+    for (let i = 1; i <= 30; i++) {
+      const date = `202406${i < 10 ? '0' + i : i}`;
+      if (await isHoliday(date)) {
+        holidayDays.push(i);
+      }
+    }
+    setHolidays(holidayDays);
+  };
 
   const handleDayClick = (day: number) => {
     setSelectedDay(day);
@@ -30,7 +44,7 @@ const Calendar: React.FC = () => {
   return (
     <div className="calendar">
       {Array.from({ length: 30 }, (_, i) => (
-        <button key={i} onClick={() => handleDayClick(i + 1)}>
+        <button key={i} onClick={() => handleDayClick(i + 1)} style={{backgroundColor: holidays.includes(i + 1) ? 'green' : 'white'}}>
           {i + 1}
         </button>
       ))}
@@ -46,8 +60,9 @@ const Calendar: React.FC = () => {
           }}
         />
         <ul>
-            {selectedDay !== null && tasks[selectedDay]?.map((task, index) => (
-                <li key={index}>{task}</li>
+          {selectedDay !== null &&
+            tasks[selectedDay]?.map((task, index) => (
+              <li key={index}>{task}</li>
             ))}
         </ul>
         <button onClick={closeModal}>Close</button>
